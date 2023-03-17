@@ -30,7 +30,9 @@ names_defects = sorted(os.listdir(source_dir))
 
 target_images_filenames = get_directory_images_filenames(target_dir)
 
-for index, filename in tqdm(enumerate(target_images_filenames, start=0), total=len(target_images_filenames)):
+number_of_images_produced = 20
+
+for i in tqdm(range(number_of_images_produced), total=number_of_images_produced):
 
     # Initial Augmentation
 
@@ -40,6 +42,6 @@ for index, filename in tqdm(enumerate(target_images_filenames, start=0), total=l
     source_img_name = get_source_image(images_paths)
 
     # Define target's filename
-    target_img_name = filename
+    target_img_name = get_random_list_item(target_images_filenames)
 
-    copy_paste_single_defect(defect_type, source_dir, source_img_name, target_dir, target_img_name, output_dir, index)
+    copy_paste_single_defect(defect_type, source_dir, source_img_name, target_dir, target_img_name, output_dir, i)
