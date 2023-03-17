@@ -7,6 +7,7 @@ Created on Fri Mar 17 12:19:00 2023
 
 import os
 import random
+import numpy as np
 
 def get_random_list_item(input_list):
     """
@@ -26,6 +27,12 @@ def get_directory_images_filenames(dir):
     Returns a list containing absolute paths of files inside the directory.
     """
     return [os.path.join(dir, filename) for filename in os.listdir(dir) if filename.endswith('.jpg')]
+
+def bool2int(bool_mask):
+    """
+    Convert a boolean mask to a mask of integers.
+    """  
+    return (bool_mask*255).astype(np.uint8)
 
 if __name__ == "__main__":
 
