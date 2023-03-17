@@ -57,7 +57,7 @@ for i_name, filename in tqdm(enumerate(target_images_filenames[:5], start=0), to
         number_of_defects = random.randint(0, 2)
         print(number_of_defects)
 
-        # # This is for testing purposes
+        # This is for testing purposes
         number_of_defects = 0
     
         # Augment each time on the new generated image and json

@@ -252,7 +252,7 @@ def mask_to_mesh(mask, img_draw = None):
             cv2.circle(temp_img, (xx,yy),0,(0,255,0),thickness=7)          
     return mesh, temp_img
 
-def erode_mask_single(mask,kernel_dims = (40,40)):
+def erode_mask_single(mask, kernel_dims = (40,40)):
     kernel = np.ones(kernel_dims, np.uint8) 
     mask_eroded = cv2.erode(mask, kernel, iterations=1)
     return mask_eroded
@@ -335,8 +335,12 @@ def place_on_surface(source_dir, source_img_name, target_dir, target_img_name, o
         source_defect_img_to_top_left_rs_adj = adjust_mask_to_new_shape(source_defect_img_to_top_left_rs, target_dims)
         
         (tx_, ty_), _ = find_centroid_of_mask(source_defect_mask_to_top_left_rs_adj.astype(bool))
-   
-        target_separator_mask = erode_mask_single(target_separator_mask, kernel_dims = (400,400))
+
+        kernel_sizes = {
+            "hole": (700, 700),
+                        }
+
+        target_separator_mask = erode_mask_single(target_separator_mask, kernel_dims = kernel_sizes[defect_type])
   
         mesh, img_draw = mask_to_mesh(target_separator_mask, target_img)
 
@@ -409,3 +413,9 @@ def place_on_surface(source_dir, source_img_name, target_dir, target_img_name, o
 
         break # We oncly care about the first defect of the json file
     return 1
+
+def main():
+    pass
+
+if __name__ == "__main__":
+    main()

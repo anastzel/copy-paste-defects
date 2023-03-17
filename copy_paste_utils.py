@@ -33,6 +33,22 @@ def get_source_image(images_list):
 
 # def get_source_defect_info(dir, defct_type):
 
+def get_random_defect_info(source_dir):
+    """
+    Get random defect info from source directory path.
+    """
+    names = sorted(os.listdir(source_dir))
+    
+    defect_type = get_random_defect_type(names)
+    # For debugging purposes, hardcoded defect type
+    defect_type = "hole"
+
+    images_paths = get_images_with_specific_defect(source_dir, defect_type)
+    random_source_name = get_source_image(images_paths)
+
+    return defect_type, random_source_name
+
+
 def print_images_and_directory_paths(source_dir, target_dir, output_dir, source_img_name, target_img_name):
     """
     Prints directories and images paths.
