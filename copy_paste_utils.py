@@ -55,7 +55,7 @@ if __name__ == '__main__':
     source_dir = r"D:\copy_paste_pipeline\source_images"
     names = os.listdir(source_dir)
 
-    defect_type = get_defect_type(names)
+    defect_type = get_random_defect_type(names)
     # defect_type = "hole"
 
     images_paths = get_images_with_specific_defect(source_dir, defect_type)
