@@ -339,6 +339,8 @@ def place_on_surface(source_dir, source_img_name, target_dir, target_img_name, o
         kernel_sizes = {
             "hole": (700, 700),
             "tearing": (650, 650),
+            "stamp": (900, 900),
+            "sticker": (900, 900),
                         }
 
         target_separator_mask = erode_mask_single(target_separator_mask, kernel_dims = kernel_sizes[defect_type])
@@ -369,6 +371,8 @@ def place_on_surface(source_dir, source_img_name, target_dir, target_img_name, o
         alphas = {
             "hole": 0.7,
             "tearing": 0.99,
+            "stamp": 0.90,
+            "sticker": 0.90,
                   }
 
         # Overlay the defect on the source image
@@ -383,6 +387,8 @@ def place_on_surface(source_dir, source_img_name, target_dir, target_img_name, o
         factors = {
             "hole": 0.005,
             "tearing": 0.001,
+            "stamp": 0.005,
+            "sticker": 0.005,
         }
 
         list_of_lists_points = mask_to_shape(rot_source_defect_mask_to_top_left_rs_adj_translated[:, :, 0], factors[defect_type])
@@ -391,6 +397,10 @@ def place_on_surface(source_dir, source_img_name, target_dir, target_img_name, o
             label = "hole"
         elif defect_type == "tearing":
             label = "tearing"
+        elif defect_type == "stamp":
+            label = "stamp"
+        elif defect_type == "sticker":
+            label = "sticker"
 
         defect_dict = {
       "label": label,
