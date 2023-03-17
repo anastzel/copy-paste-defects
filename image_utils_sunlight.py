@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu May 20 17:38:40 2021
+Created on Fri Mar 17 12:00:00 2023
 
-@author: lleontar
+@author: anastzel
 """
 
 import cv2
