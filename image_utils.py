@@ -281,111 +281,104 @@ def mask_to_shape(mask):
     #points will be list with [w,h]
     return points
 
-def place_on_surface(source_dir, source_img_name, target_dir, target_img_name, defect_dir, i, type_of_defect):
+def place_on_surface(source_dir, source_img_name, target_dir, target_img_name, output_dir, i, defect_type):
+    # Get source image and json file information
     source_img = cv2.imread(P_2(source_dir, source_img_name))
     source_dims = source_img.shape[:2]
     source_json_name = source_img_name.replace((".jpg"), (".json"))
 
+    # Get target image and json file information
     target_img = cv2.imread(P_2(target_dir, target_img_name))
     target_dims = target_img.shape[:2]
     target_json_name = target_img_name.replace((".jpg"), (".json"))
 
+    # Convert source and target json files to masks
     source_masks_dict, _ = json_to_masks(source_dir, source_json_name, source_dims, booltype=False)
     target_masks_dict, _ = json_to_masks(target_dir, target_json_name, target_dims, booltype=False)
     
+    # Get information about the source separator
     source_separator_mask = source_masks_dict['separator'][0]
     source_separator_contour = mask_to_contours(source_separator_mask)[0]
     source_separator_info = get_contour_info(source_separator_contour, source_dims)
     
+    # Get information about the target separator
     target_separator_mask = target_masks_dict['separator'][0]
     target_separator_contour = mask_to_contours(target_separator_mask)[0]
     target_separator_info = get_contour_info(target_separator_contour, target_dims)
 
-    #assumes separator is in horizontal orientation in image
+    # Assumes separator is in horizontal orientation in image
     source_separator_short_edge = source_separator_info['yt'] - source_separator_info['y0']
     target_separator_short_edge = target_separator_info['yt'] - target_separator_info['y0']
 
-    #short edge of separator is image height
+    # Short edge of separator is image height
     separator_scale_factor = target_separator_short_edge / source_separator_short_edge
     
     for key, _ in source_masks_dict.items():
-        source_defect_mask = source_masks_dict[key][0]
+        source_defect_mask = source_masks_dict[key][0] # defect sjould be in first position in json file
         ## source_hole_mask_centered = centralize_mask(source_hole_mask)
 
         source_defect_img =  cv2.bitwise_and(source_img, source_img, mask = bool2int(source_defect_mask))
 
         source_defect_mask_to_top_left, source_defect_img_to_top_left = translate_mask(source_defect_mask, source_defect_img)
-        # cv2.imwrite("source_hole_mask_to_top_left.png", source_defect_mask_to_top_left)
-        # cv2.imwrite("source_hole_img_to_top_left.png", source_defect_img_to_top_left)
         
         source_defect_contour = mask_to_contours(source_defect_mask)[0]
         source_defect_info = get_contour_info(source_defect_contour, source_dims)
 
-        # cv2.imwrite("source_hole_img.png", source_defect_img)
         source_hole_img_centered = centralize_mask(source_defect_img)
-        # cv2.imwrite("source_hole_img_centered.png", source_hole_img_centered)
 
         ww = source_defect_img.shape[1]
         hh = source_defect_img.shape[0]
         source_defect_mask_to_top_left_rs = cv2.resize(source_defect_mask_to_top_left, (int(ww*separator_scale_factor), int(hh*separator_scale_factor)))
-        # cv2.imwrite("source_hole_mask_to_top_left_rs.png",source_defect_mask_to_top_left_rs)   
         source_defect_img_to_top_left_rs = cv2.resize(source_defect_img_to_top_left, (int(ww*separator_scale_factor), int(hh*separator_scale_factor)))
-        # cv2.imwrite("source_hole_img_to_top_left_rs.png", source_defect_img_to_top_left_rs)   
         
-        # source_hole_img_rs = cv2.resize(source_hole_img_centered, (int(ww*separator_scale_factor),int(hh*separator_scale_factor)))
-        # source_hole_img_centered_rescaled_to_separator = cv2.resize(source_hole_img_centered, (int(ww*separator_scale_factor),int(hh*separator_scale_factor)))
-        # cv2.imwrite("source_hole_img_centered_rescaled_to_separator.png",source_hole_img_rs)        
         source_defect_mask_to_top_left_rs_adj = adjust_mask_to_new_shape(source_defect_mask_to_top_left_rs, target_dims)
-        # cv2.imwrite("source_hole_mask_to_top_left_rs_adj.png", source_hole_mask_to_top_left_rs_adj)   
         source_defect_img_to_top_left_rs_adj = adjust_mask_to_new_shape(source_defect_img_to_top_left_rs, target_dims)
-        # cv2.imwrite("source_hole_img_to_top_left_rs_adj.png", source_hole_img_to_top_left_rs_adj)  
         
         (tx_, ty_), _ = find_centroid_of_mask(source_defect_mask_to_top_left_rs_adj.astype(bool))
-        # #here comes the augmentation. for the demo translate the defect in the center of separator mask - deprecated
-        # cv2.imwrite("target_separator_mask.png", target_separator_mask)
-               
+   
         target_separator_mask = erode_mask_single(target_separator_mask, kernel_dims = (400,400))
-        # target_separator_mask = erode_mask_single(target_separator_mask, kernel_dims = (200,200))
-        # cv2.imwrite("target_separator_mask_shrinked.png", target_separator_mask)
   
         mesh, img_draw = mask_to_mesh(target_separator_mask, target_img)
-        # cv2.imwrite("img_draw.png", img_draw)
 
-        #choose a random x,y pair from mesh to translate defect
+        # Choose a random x,y pair from mesh to translate defect
         X, Y = mesh
         positions = np.vstack([X.ravel(), Y.ravel()])
         rand_i = np.random.choice(positions.shape[1], replace=False)
         tx = positions[0][rand_i]
         ty = positions[1][rand_i]       
-        # (tx,ty),_ = find_centroid_of_mask(target_separator_mask)
         
         source_defect_mask_to_top_left_rs_adj_translated = translate_image(source_defect_mask_to_top_left_rs_adj, (tx-tx_), (ty - ty_))
-        # cv2.imwrite("source_hole_mask_to_top_left_rs_adj_translated.png", source_hole_mask_to_top_left_rs_adj_translated)
         
         source_defect_img_to_top_left_rs_adj_translated = translate_image(source_defect_img_to_top_left_rs_adj, (tx-tx_), (ty - ty_))
-        # cv2.imwrite("source_hole_img_to_top_left_rs_adj_translated.png", source_hole_img_to_top_left_rs_adj_translated)
     
         (fx, fy), _ = find_centroid_of_mask(source_defect_mask_to_top_left_rs_adj_translated)
         center = (int(fx), int(fy))
 
+        # Choose a random angle to rotate the defect
         angles = np.arange(0,360)
         rand_angle = random.choice(angles)
         rot_source_defect_mask_to_top_left_rs_adj_translated =  rotate_mask(source_defect_mask_to_top_left_rs_adj_translated, center, rand_angle)
         rot_source_defect_img_to_top_left_rs_adj_translated =  rotate_mask(source_defect_img_to_top_left_rs_adj_translated, center, rand_angle)
 
-        alpha = 0.85
+        # Define alphas for each of the defect types
+        alphas = {
+            "hole": 0.7,
+                  }
+
+        # Overlay the defect on the source image
+        alpha = alphas[defect_type]
         mask_ = (rot_source_defect_mask_to_top_left_rs_adj_translated/255).astype(float)
         mask__ = 1 - alpha*mask_
         target_img_ = cv2.multiply(target_img.astype(float), mask__)
         target_img_ = cv2.add(target_img_, rot_source_defect_img_to_top_left_rs_adj_translated.astype(float))
-        new_path = P_2(defect_dir, f"{int(i/2)}_defect.jpg")
+        new_path = P_2(output_dir, f"{int(i)}_defect.jpg")
         cv2.imwrite(new_path, target_img_.astype(np.uint8))
 
         list_of_lists_points = mask_to_shape(rot_source_defect_mask_to_top_left_rs_adj_translated[:, :, 0])
 
-        if type_of_defect == "hole":
+        if defect_type == "hole":
             label = "hole"
-        elif type_of_defect == "tearing":
+        elif defect_type == "tearing":
             label = "tearing"
 
         defect_dict = {
@@ -409,10 +402,10 @@ def place_on_surface(source_dir, source_img_name, target_dir, target_img_name, d
         data['imageData'] = image_data
 
         # Open the file for writing
-        with open(f"{defect_dir}/{int(i/2)}_defect.json", 'w') as f:
+        with open(f"{output_dir}/{int(i)}_defect.json", 'w') as f:
             # Write the modified data back to the file
             json.dump(data, f)
 
 
-        break
+        break # We oncly care about the first defect of the json file
     return 1

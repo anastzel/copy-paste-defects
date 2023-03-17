@@ -13,7 +13,6 @@ def get_random_list_item(input_list):
     """
     Returns a random item from a list.
     """
-
     return random.choice(input_list)
 
 def get_random_list_id(input_list):
@@ -34,9 +33,20 @@ def bool2int(bool_mask):
     """  
     return (bool_mask*255).astype(np.uint8)
 
+def split_directory_base_path_from_full_path(full_path):
+    """
+    Splits a full path into a directory and a base path.
+    """ 
+    list = full_path.split('\\')
+    base_path = list[-1]
+    directory_path = "/".join(list[:-1])
+
+    return directory_path, base_path    
+
 if __name__ == "__main__":
 
     # For debugging
-    input_list = [1, 2, 3, 4, 5]
-    print(get_random_list_id(input_list))
-    print(get_random_list_item(input_list))
+    full_path = r"D:\copy_paste_pipeline\source_images\hole\hole_0.jpg"
+    directory_path, base_path = split_directory_base_path_from_full_path(full_path)
+    print(f"Directory path: {directory_path}")
+    print(f"Base path: {base_path}")
