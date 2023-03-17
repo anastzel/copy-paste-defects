@@ -41,7 +41,7 @@ def get_random_defect_info(source_dir):
     
     defect_type = get_random_defect_type(names)
     # For debugging purposes, hardcoded defect type
-    defect_type = "hole"
+    defect_type = "tearing"
 
     images_paths = get_images_with_specific_defect(source_dir, defect_type)
     random_source_name = get_source_image(images_paths)

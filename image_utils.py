@@ -262,22 +262,22 @@ def rotate_mask(image, image_center, angle):
   result = cv2.warpAffine(image, rot_mat, image.shape[1::-1], flags=cv2.INTER_LINEAR)
   return result
 
-def contour_to_points(contour):
-    epsilon = 0.005 * cv2.arcLength(contour, True)
+def contour_to_points(contour, factor = 0.005):
+    epsilon = factor * cv2.arcLength(contour, True)
     approx = cv2.approxPolyDP(contour, epsilon, closed=True)     
     inst = approx.astype(np.int32).reshape(-1,2)
     points = [ list(i) for i in inst]
     points = [[int(i[0]), int(i[1])] for i in points]
     return points
 
-def mask_to_shape(mask):
+def mask_to_shape(mask, factor):
     contours = mask_to_contours(mask)
     if len(contours)==0:
         return None
     # if discard_multiple_object:        
     # assert len(contours)==1, "[mask_to_shape - len(contours)>1, mask should be single object"
     contour = contours[0]
-    points = contour_to_points(contour)
+    points = contour_to_points(contour, factor)
     #points will be list with [w,h]
     return points
 
@@ -338,6 +338,7 @@ def place_on_surface(source_dir, source_img_name, target_dir, target_img_name, o
 
         kernel_sizes = {
             "hole": (700, 700),
+            "tearing": (650, 650),
                         }
 
         target_separator_mask = erode_mask_single(target_separator_mask, kernel_dims = kernel_sizes[defect_type])
@@ -367,6 +368,7 @@ def place_on_surface(source_dir, source_img_name, target_dir, target_img_name, o
         # Define alphas for each of the defect types
         alphas = {
             "hole": 0.7,
+            "tearing": 0.99,
                   }
 
         # Overlay the defect on the source image
@@ -378,7 +380,12 @@ def place_on_surface(source_dir, source_img_name, target_dir, target_img_name, o
         new_path = P_2(output_dir, f"{int(i)}_defect.jpg")
         cv2.imwrite(new_path, target_img_.astype(np.uint8))
 
-        list_of_lists_points = mask_to_shape(rot_source_defect_mask_to_top_left_rs_adj_translated[:, :, 0])
+        factors = {
+            "hole": 0.005,
+            "tearing": 0.001,
+        }
+
+        list_of_lists_points = mask_to_shape(rot_source_defect_mask_to_top_left_rs_adj_translated[:, :, 0], factors[defect_type])
 
         if defect_type == "hole":
             label = "hole"
