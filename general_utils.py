@@ -9,7 +9,7 @@ import random
 
 def get_random_list_item(input_list):
     """
-    Returns a random iteam from a list.
+    Returns a random item from a list.
     """
 
     return random.choice(input_list)
