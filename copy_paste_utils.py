@@ -8,6 +8,7 @@ Created on Fri Mar 17 12:02:00 2023
 import os
 
 from general_utils import *
+from image_utils_sunlight import place_on_surface, place_on_left_border, place_on_right_border, place_on_upper_border, place_on_lower_border
 
 def get_random_defect_type(names):
     """
@@ -32,13 +33,29 @@ def get_source_image(images_list):
 
 # def get_source_defect_info(dir, defct_type):
 
+def copy_paste_single_defect(defect_type, source_dir, source_img_name, target_dir, target_img_name, output_dir, index):
+    """
+    Performs copy paste augmentation in a single image and saves the resulting image and annotation json.
+    """
+
+    if defect_type in ["hole", "tearing"]:
+        place_on_surface(source_dir, source_img_name, target_dir, target_img_name, output_dir, index, defect_type)
+    elif defect_type in ["left_border_wrinkle", "non_polished"]:
+        place_on_left_border(source_dir, source_img_name, target_dir, target_img_name, output_dir, index, defect_type)
+    elif defect_type in ["right_border_wrinkle", "rods"]:
+        place_on_right_border(source_dir, source_img_name, target_dir, target_img_name, output_dir, index, defect_type)
+    elif defect_type in ["upper_border_hole"]:
+        place_on_upper_border(source_dir, source_img_name, target_dir, target_img_name, output_dir, index, defect_type)
+    elif defect_type in ["lower_border_hole", "seam"]:
+        place_on_lower_border(source_dir, source_img_name, target_dir, target_img_name, output_dir, index, defect_type)
+
 if __name__ == '__main__':
 
     # For debugging purposes
     source_dir = r"D:\copy_paste_pipeline\source_images"
     names = os.listdir(source_dir)
 
-    defect_type = get_random_defect_type(names)
+    defect_type = get_defect_type(names)
     # defect_type = "hole"
 
     images_paths = get_images_with_specific_defect(source_dir, defect_type)

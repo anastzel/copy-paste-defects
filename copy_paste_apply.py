@@ -50,7 +50,7 @@ for i_name, filename in tqdm(enumerate(target_images_filenames[:5], start=0), to
 
         # Define target's filename
         target_img_name = filename
-        # Perform copy paste dependinf the type of the defect
+        # Perform copy paste depending on the type of the defect
         copy_paste_single_defect(random_defect_type, source_dir, source_img_name, target_dir, target_img_name, generated_dir, i_name)
 
         # Define the number of defects in target image
