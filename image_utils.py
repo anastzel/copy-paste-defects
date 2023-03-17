@@ -369,10 +369,10 @@ def place_on_surface(source_dir, source_img_name, target_dir, target_img_name, o
 
         # Define alphas for each of the defect types
         alphas = {
-            "hole": 0.7,
-            "tearing": 0.99,
-            "stamp": 0.90,
-            "sticker": 0.90,
+            "hole": 1.00,
+            "tearing": 1.00,
+            "stamp": 1.00,
+            "sticker": 1.00,
                   }
 
         # Overlay the defect on the source image

@@ -38,10 +38,11 @@ def get_random_defect_info(source_dir):
     Get random defect info from source directory path.
     """
     names = sorted(os.listdir(source_dir))
+    names = ["hole", "tearing", "stamp", "sticker"]
     
     defect_type = get_random_defect_type(names)
     # For debugging purposes, hardcoded defect type
-    defect_type = "sticker"
+    # defect_type = "sticker"
 
     images_paths = get_images_with_specific_defect(source_dir, defect_type)
     random_source_name = get_source_image(images_paths)
