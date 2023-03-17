@@ -5,7 +5,7 @@ Created on Fri Nov 18 11:57:56 2022
 @author: anastzel
 """
 
-from image_utils_pyramis import *
+from image_utils_sunlight import *
 import os
 import random
 from tqdm import tqdm
