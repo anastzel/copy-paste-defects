@@ -49,6 +49,7 @@ for i in tqdm(range(number_of_images_to_generate), total=number_of_images_to_gen
 
     # Define the number of additional augmentations
     number_of_additional_defects = random.randint(0, 1)
+    # number_of_additional_defects = 0
 
     # Augment each time on the new generated image and json
     for _ in range(number_of_additional_defects):
@@ -61,3 +62,5 @@ for i in tqdm(range(number_of_images_to_generate), total=number_of_images_to_gen
         updated_target_dir, updated_target_img_name = split_directory_base_path_from_full_path(updated_target_img_name)
         # Perform copy paste depending the type of the defect
         copy_paste_single_defect(defect_type, source_dir, source_img_name, updated_target_dir, updated_target_img_name, output_dir, i)
+
+    

@@ -281,6 +281,12 @@ def mask_to_shape(mask, factor):
     #points will be list with [w,h]
     return points
 
+def resize_image(image, scale_factor):
+    height, width = image.shape[:2]
+    new_height, new_width = int(scale_factor*height), int(scale_factor*width)
+    resized_image = cv2.resize(image, (new_width, new_height), interpolation=cv2.INTER_AREA)
+    return resized_image
+
 def place_on_surface(source_dir, source_img_name, target_dir, target_img_name, output_dir, i, defect_type):
     # Get source image and json file information
     source_img = cv2.imread(P_2(source_dir, source_img_name))
@@ -310,8 +316,15 @@ def place_on_surface(source_dir, source_img_name, target_dir, target_img_name, o
     source_separator_short_edge = source_separator_info['yt'] - source_separator_info['y0']
     target_separator_short_edge = target_separator_info['yt'] - target_separator_info['y0']
 
+    source_separator_long_edge = source_separator_info['xt'] - source_separator_info['x0']
+    target_separator_long_edge = target_separator_info['xt'] - target_separator_info['x0']
+
     # Short edge of separator is image height
-    separator_scale_factor = target_separator_short_edge / source_separator_short_edge
+    # separator_scale_factor = target_separator_short_edge / source_separator_short_edge
+    separator_scale_factor = target_separator_long_edge / source_separator_long_edge
+    if separator_scale_factor > 0.8:
+        additional_scale_factor = random.uniform(0.5, 0.8)
+        separator_scale_factor *= additional_scale_factor
     
     for key, _ in source_masks_dict.items():
         source_defect_mask = source_masks_dict[key][0] # defect sjould be in first position in json file
@@ -339,8 +352,8 @@ def place_on_surface(source_dir, source_img_name, target_dir, target_img_name, o
         kernel_sizes = {
             "hole": (700, 700),
             "tearing": (650, 650),
-            "stamp": (900, 900),
-            "sticker": (900, 900),
+            "stamp": (1100, 1100),
+            "sticker": (1100, 1100),
                         }
 
         target_separator_mask = erode_mask_single(target_separator_mask, kernel_dims = kernel_sizes[defect_type])
@@ -390,6 +403,10 @@ def place_on_surface(source_dir, source_img_name, target_dir, target_img_name, o
             "stamp": 0.005,
             "sticker": 0.005,
         }
+
+        # Save final defective binary mask and image for debugging reasons 
+        # cv2.imwrite("binary_mask_defect.jpg", rot_source_defect_mask_to_top_left_rs_adj_translated[:, :, 0])
+        # cv2.imwrite("img_defect.jpg", rot_source_defect_img_to_top_left_rs_adj_translated)
 
         list_of_lists_points = mask_to_shape(rot_source_defect_mask_to_top_left_rs_adj_translated[:, :, 0], factors[defect_type])
 

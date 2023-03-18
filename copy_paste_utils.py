@@ -39,6 +39,7 @@ def get_random_defect_info(source_dir):
     """
     names = sorted(os.listdir(source_dir))
     names = ["hole", "tearing", "stamp", "sticker"]
+    # names = ["sticker"]
     
     defect_type = get_random_defect_type(names)
     # For debugging purposes, hardcoded defect type
