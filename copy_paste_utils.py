@@ -47,6 +47,15 @@ def get_random_defect_info(source_dir):
 
     return defect_type, random_source_name
 
+def check_consecutive_defect_types(previous_type, current_type):
+    
+    defect_types = ["seam", "lag", "rods"]
+
+    new_defect_type_required = False
+    if previous_type == current_type and current_type in defect_types:
+        new_defect_type_required = True
+
+    return new_defect_type_required
 
 def print_images_and_directory_paths(source_dir, target_dir, output_dir, source_img_name, target_img_name):
     """
