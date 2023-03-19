@@ -298,7 +298,7 @@ def get_right_border_grid(img, image_annotations, defect_type):
     kernel = np.ones((3, 3), np.uint8)
 
     # Perform erosion on the mask
-    iterations = 20
+    iterations = 10
     if defect_type == "rods":
         iterations = 5
 
@@ -595,6 +595,7 @@ def place_on_right_border(source_dir, source_img_name, target_dir, target_img_na
 
         kernel_sizes = {
             "rods": (50, 50),
+            "right_wrinkle": (25, 25),
                         }
 
         target_separator_mask = erode_mask_single(target_separator_mask, kernel_dims = kernel_sizes[defect_type])
@@ -602,8 +603,8 @@ def place_on_right_border(source_dir, source_img_name, target_dir, target_img_na
         try:
             y, x = get_right_border_grid(target_img, target_image_annotations, defect_type)
             # This gives right border
-            if defect_type == "right_border_wrinkle":
-                rand_i = np.random.choice(range(int(0.2*len(x)), int(0.8*len(x))), replace=False)
+            if defect_type == "right_wrinkle":
+                rand_i = np.random.choice(range(int(0.3*len(x)), int(0.7*len(x))), replace=False)
             elif defect_type == "rods":
                 rand_i = int(0.55*len(x))
         except ValueError:
@@ -620,6 +621,7 @@ def place_on_right_border(source_dir, source_img_name, target_dir, target_img_na
         # Choose a random angle to rotate the defect
         rot_angles = {
             "rods": np.arange(-3,-2),
+            "right_wrinkle": np.arange(0, 1),
         }
 
         rand_angle = random.choice(rot_angles[defect_type])
@@ -629,6 +631,7 @@ def place_on_right_border(source_dir, source_img_name, target_dir, target_img_na
         # Define alphas for each of the defect types
         alphas = {
             "rods": 1.00,
+            "right_wrinkle": 1.00,
                   }
 
         # Overlay the defect on the source image
@@ -642,6 +645,7 @@ def place_on_right_border(source_dir, source_img_name, target_dir, target_img_na
 
         factors = {
             "rods": 0.005,
+            "right_wrinkle": 0.005,
         }
 
         # Save final defective binary mask and image for debugging reasons 
@@ -652,6 +656,8 @@ def place_on_right_border(source_dir, source_img_name, target_dir, target_img_na
 
         if defect_type == "rods":
             label = "rods"
+        elif defect_type == "right_wrinkle":
+            label = "wrinkle"
 
         defect_dict = {
       "label": label,

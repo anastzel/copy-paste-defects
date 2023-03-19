@@ -39,7 +39,7 @@ def get_random_defect_info(source_dir):
     """
     names = sorted(os.listdir(source_dir))
     # names = ["hole", "tearing", "stamp", "sticker"]
-    names = ["bottom_wrinkle"]
+    names = ["right_wrinkle"]
     
     defect_type = get_random_defect_type(names)
 
@@ -70,7 +70,7 @@ def copy_paste_single_defect(defect_type, source_dir, source_img_name, target_di
     # TODO: add other defect types
     # elif defect_type in ["left_border_wrinkle", "non_polished"]:
     #     place_on_left_border(source_dir, source_img_name, target_dir, target_img_name, output_dir, index, defect_type)
-    elif defect_type in ["right_border_wrinkle", "rods"]:
+    elif defect_type in ["right_wrinkle", "rods"]:
         place_on_right_border(source_dir, source_img_name, target_dir, target_img_name, output_dir, index, defect_type)
     elif defect_type in ["seam"]:
         place_seam(source_dir, source_img_name, target_dir, target_img_name, output_dir, index, defect_type)
