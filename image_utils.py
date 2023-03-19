@@ -375,8 +375,15 @@ def place_on_surface(source_dir, source_img_name, target_dir, target_img_name, o
         center = (int(fx), int(fy))
 
         # Choose a random angle to rotate the defect
-        angles = np.arange(0,360)
-        rand_angle = random.choice(angles)
+        rot_angles = {
+            "hole": np.arange(0,360),
+            "tearing": np.arange(0,45),
+            "stamp": np.arange(0,45),
+            "sticker": np.arange(0,360),
+          
+        }
+
+        rand_angle = random.choice(rot_angles[defect_type])
         rot_source_defect_mask_to_top_left_rs_adj_translated =  rotate_mask(source_defect_mask_to_top_left_rs_adj_translated, center, rand_angle)
         rot_source_defect_img_to_top_left_rs_adj_translated =  rotate_mask(source_defect_img_to_top_left_rs_adj_translated, center, rand_angle)
 
