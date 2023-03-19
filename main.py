@@ -19,7 +19,7 @@ source_images_dir = r"D:\copy_paste_pipeline\source_images"
 target_images_dir = r"D:\copy_paste_pipeline\target_images"
 output_images_dir = r"D:\copy_paste_pipeline\generated_images"
 
-number_of_images_to_generate = 10
+number_of_images_to_generate = 40
 
 # Get the number of the different defect types
 num_defects = len(os.listdir(source_images_dir))
