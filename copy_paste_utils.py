@@ -8,7 +8,7 @@ Created on Fri Mar 17 12:02:00 2023
 import os
 
 from general_utils import *
-from image_utils import place_on_surface
+from image_utils import place_on_surface, place_on_right_border
 
 def get_random_defect_type(names):
     """
@@ -38,8 +38,8 @@ def get_random_defect_info(source_dir):
     Get random defect info from source directory path.
     """
     names = sorted(os.listdir(source_dir))
-    names = ["hole", "tearing", "stamp", "sticker"]
-    # names = ["sticker"]
+    # names = ["hole", "tearing", "stamp", "sticker"]
+    names = ["rods"]
     
     defect_type = get_random_defect_type(names)
     # For debugging purposes, hardcoded defect type
@@ -72,8 +72,8 @@ def copy_paste_single_defect(defect_type, source_dir, source_img_name, target_di
     # TODO: add other defect types
     # elif defect_type in ["left_border_wrinkle", "non_polished"]:
     #     place_on_left_border(source_dir, source_img_name, target_dir, target_img_name, output_dir, index, defect_type)
-    # elif defect_type in ["right_border_wrinkle", "rods"]:
-    #     place_on_right_border(source_dir, source_img_name, target_dir, target_img_name, output_dir, index, defect_type)
+    elif defect_type in ["right_border_wrinkle", "rods"]:
+        place_on_right_border(source_dir, source_img_name, target_dir, target_img_name, output_dir, index, defect_type)
     # elif defect_type in ["upper_border_hole"]:
     #     place_on_upper_border(source_dir, source_img_name, target_dir, target_img_name, output_dir, index, defect_type)
     # elif defect_type in ["lower_border_hole", "seam"]:
