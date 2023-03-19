@@ -333,10 +333,11 @@ def get_left_border_grid(img, image_annotations, type_of_defect):
 
     if type_of_defect == "left_wrinkle":
         iterations = 30
+        new_mask = cv2.erode(mask, kernel, iterations=iterations)
         # Perform erosion on the mask
     elif type_of_defect == "lag":
         iterations = 40
-    new_mask = cv2.dilate(mask, kernel, iterations=iterations)
+        new_mask = cv2.dilate(mask, kernel, iterations=iterations)
 
 
     # Apply Canny edge detection to the mask
@@ -1315,6 +1316,10 @@ def place_lag(source_dir, source_img_name, target_dir, target_img_name, output_d
 
         break # We oncly care about the first defect of the json file
     return 1
+
+def place_defect():
+    # TODO: Merge the place defect function into one
+    pass
 
 def main():
     pass

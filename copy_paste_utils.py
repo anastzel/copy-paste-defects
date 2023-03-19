@@ -38,9 +38,8 @@ def get_random_defect_info(source_dir):
     Get random defect info from source directory path.
     """
     names = sorted(os.listdir(source_dir))
-    # names = ["hole", "tearing", "stamp", "sticker"]
-    names = ["lag"]
-    
+    names = ["hole", "tearing", "stamp", "sticker", "bottom_wrinkle", "left_wrinkle", "right_wrinkle", "seam", "lag", "rods"]
+
     defect_type = get_random_defect_type(names)
 
     images_paths = get_images_with_specific_defect(source_dir, defect_type)
@@ -66,8 +65,6 @@ def copy_paste_single_defect(defect_type, source_dir, source_img_name, target_di
 
     if defect_type in ["hole", "tearing", "stamp", "sticker"]:
         place_on_surface(source_dir, source_img_name, target_dir, target_img_name, output_dir, index, defect_type)
-
-    # TODO: add other defect types
     elif defect_type in ["left_wrinkle"]:
         place_on_left_border(source_dir, source_img_name, target_dir, target_img_name, output_dir, index, defect_type)
     elif defect_type in ["right_wrinkle", "rods"]:
