@@ -8,7 +8,7 @@ Created on Fri Mar 17 12:02:00 2023
 import os
 
 from general_utils import *
-from image_utils import place_on_surface, place_on_right_border
+from image_utils import place_on_surface, place_on_right_border, place_seam
 
 def get_random_defect_type(names):
     """
@@ -39,11 +39,9 @@ def get_random_defect_info(source_dir):
     """
     names = sorted(os.listdir(source_dir))
     # names = ["hole", "tearing", "stamp", "sticker"]
-    names = ["rods"]
+    names = ["seam"]
     
     defect_type = get_random_defect_type(names)
-    # For debugging purposes, hardcoded defect type
-    # defect_type = "sticker"
 
     images_paths = get_images_with_specific_defect(source_dir, defect_type)
     random_source_name = get_source_image(images_paths)
@@ -74,6 +72,8 @@ def copy_paste_single_defect(defect_type, source_dir, source_img_name, target_di
     #     place_on_left_border(source_dir, source_img_name, target_dir, target_img_name, output_dir, index, defect_type)
     elif defect_type in ["right_border_wrinkle", "rods"]:
         place_on_right_border(source_dir, source_img_name, target_dir, target_img_name, output_dir, index, defect_type)
+    elif defect_type in ["seam"]:
+        place_seam(source_dir, source_img_name, target_dir, target_img_name, output_dir, index, defect_type)
     # elif defect_type in ["upper_border_hole"]:
     #     place_on_upper_border(source_dir, source_img_name, target_dir, target_img_name, output_dir, index, defect_type)
     # elif defect_type in ["lower_border_hole", "seam"]:
