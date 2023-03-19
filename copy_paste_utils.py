@@ -8,7 +8,7 @@ Created on Fri Mar 17 12:02:00 2023
 import os
 
 from general_utils import *
-from image_utils import place_on_surface, place_on_right_border, place_seam, place_bottom_wrinkle, place_on_left_border
+from image_utils import place_on_surface, place_on_right_border, place_seam, place_bottom_wrinkle, place_on_left_border, place_lag
 
 def get_random_defect_type(names):
     """
@@ -39,7 +39,7 @@ def get_random_defect_info(source_dir):
     """
     names = sorted(os.listdir(source_dir))
     # names = ["hole", "tearing", "stamp", "sticker"]
-    names = ["left_wrinkle"]
+    names = ["lag"]
     
     defect_type = get_random_defect_type(names)
 
@@ -76,6 +76,8 @@ def copy_paste_single_defect(defect_type, source_dir, source_img_name, target_di
         place_seam(source_dir, source_img_name, target_dir, target_img_name, output_dir, index, defect_type)
     elif defect_type in ["bottom_wrinkle"]:
         place_bottom_wrinkle(source_dir, source_img_name, target_dir, target_img_name, output_dir, index, defect_type)
+    elif defect_type in ["lag"]:
+        place_lag(source_dir, source_img_name, target_dir, target_img_name, output_dir, index, defect_type)
 
 if __name__ == '__main__':
 

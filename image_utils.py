@@ -334,7 +334,9 @@ def get_left_border_grid(img, image_annotations, type_of_defect):
     if type_of_defect == "left_wrinkle":
         iterations = 30
         # Perform erosion on the mask
-        new_mask = cv2.erode(mask, kernel, iterations=iterations)
+    elif type_of_defect == "lag":
+        iterations = 40
+    new_mask = cv2.dilate(mask, kernel, iterations=iterations)
 
 
     # Apply Canny edge detection to the mask
@@ -1137,6 +1139,153 @@ def place_bottom_wrinkle(source_dir, source_img_name, target_dir, target_img_nam
 
         if defect_type == "bottom_wrinkle":
             label = "wrinkle"
+
+        defect_dict = {
+      "label": label,
+      "points": list_of_lists_points,
+      "shape_type": "polygon",
+      "flags": {}
+        }
+
+        # Open the JSON file for reading
+        with open(os.path.join(target_dir, target_json_name), 'r') as f:
+            # Load the contents of the file into a variable
+            data = json.load(f)
+
+        img_data = labelme.LabelFile.load_image_file(new_path)
+        image_data = base64.b64encode(img_data).decode('utf-8')
+
+        # Modify the data as needed
+        data['shapes'].append(defect_dict)
+        data['imagePath'] = new_path
+        data['imageData'] = image_data
+
+        # Open the file for writing
+        with open(f"{output_dir}/{int(i)}_defect.json", 'w') as f:
+            # Write the modified data back to the file
+            json.dump(data, f)
+
+
+        break # We oncly care about the first defect of the json file
+    return 1
+
+def place_lag(source_dir, source_img_name, target_dir, target_img_name, output_dir, i, defect_type):
+    # Get source image and json file information
+    source_img = cv2.imread(P_2(source_dir, source_img_name))
+    source_dims = source_img.shape[:2]
+    source_json_name = source_img_name.replace((".jpg"), (".json"))
+
+    # Get target image and json file information
+    target_img = cv2.imread(P_2(target_dir, target_img_name))
+    target_dims = target_img.shape[:2]
+    target_json_name = target_img_name.replace((".jpg"), (".json"))
+    with open(P_2(target_dir, target_json_name), 'r') as f:
+        target_image_annotations = json.load(f)
+
+    # Convert source and target json files to masks
+    source_masks_dict, _ = json_to_masks(source_dir, source_json_name, source_dims, booltype=False)
+    target_masks_dict, _ = json_to_masks(target_dir, target_json_name, target_dims, booltype=False)
+    
+    # Get information about the source separator
+    source_separator_mask = source_masks_dict['separator'][0]
+    source_separator_contour = mask_to_contours(source_separator_mask)[0]
+    source_separator_info = get_contour_info(source_separator_contour, source_dims)
+    
+    # Get information about the target separator
+    target_separator_mask = target_masks_dict['separator'][0]
+    target_separator_contour = mask_to_contours(target_separator_mask)[0]
+    target_separator_info = get_contour_info(target_separator_contour, target_dims)
+
+    # Assumes separator is in horizontal orientation in image
+    source_separator_short_edge = source_separator_info['yt'] - source_separator_info['y0']
+    target_separator_short_edge = target_separator_info['yt'] - target_separator_info['y0']
+
+    source_separator_long_edge = source_separator_info['xt'] - source_separator_info['x0']
+    target_separator_long_edge = target_separator_info['xt'] - target_separator_info['x0']
+
+    # Short edge of separator is image height
+    separator_scale_factor = target_separator_short_edge / source_separator_short_edge
+    
+    for key, _ in source_masks_dict.items():
+        source_defect_mask = source_masks_dict[key][0] # defect should be in first position in json file
+        # source_hole_mask_centered = centralize_mask(source_hole_mask)
+
+        source_defect_img =  cv2.bitwise_and(source_img, source_img, mask = bool2int(source_defect_mask))
+
+        source_defect_mask_to_top_left, source_defect_img_to_top_left = translate_mask(source_defect_mask, source_defect_img)
+
+        source_defect_contour = mask_to_contours(source_defect_mask)[0]
+        source_defect_info = get_contour_info(source_defect_contour, source_dims)
+
+        source_hole_img_centered = centralize_mask(source_defect_img)
+
+        ww = source_defect_img.shape[1]
+        hh = source_defect_img.shape[0]
+        source_defect_mask_to_top_left_rs = cv2.resize(source_defect_mask_to_top_left, (int(ww*separator_scale_factor), int(hh*separator_scale_factor)))
+        source_defect_img_to_top_left_rs = cv2.resize(source_defect_img_to_top_left, (int(ww*separator_scale_factor), int(hh*separator_scale_factor)))
+        
+        source_defect_mask_to_top_left_rs_adj = adjust_mask_to_new_shape(source_defect_mask_to_top_left_rs, target_dims)
+        source_defect_img_to_top_left_rs_adj = adjust_mask_to_new_shape(source_defect_img_to_top_left_rs, target_dims)
+        
+        (tx_, ty_), _ = find_centroid_of_mask(source_defect_mask_to_top_left_rs_adj.astype(bool))
+
+        kernel_sizes = {
+            "lag": (1, 1),
+                        }
+
+        target_separator_mask = erode_mask_single(target_separator_mask, kernel_dims = kernel_sizes[defect_type])
+        
+        try:
+            y, x = get_left_border_grid(target_img, target_image_annotations, defect_type)
+            # This gives left border
+            if defect_type == "lag":
+                rand_i = int(0.45*len(x))
+        except ValueError:
+            break
+
+        tx, ty = x[rand_i], y[rand_i]
+
+        source_defect_mask_to_top_left_rs_adj_translated = translate_image(source_defect_mask_to_top_left_rs_adj, (tx-tx_), (ty - ty_))
+        source_defect_img_to_top_left_rs_adj_translated = translate_image(source_defect_img_to_top_left_rs_adj, (tx-tx_), (ty - ty_))
+
+        (fx, fy), _ = find_centroid_of_mask(source_defect_mask_to_top_left_rs_adj_translated)
+        center = (int(fx), int(fy))
+
+        # Choose a random angle to rotate the defect
+        rot_angles = {
+            "lag": np.arange(0, 1),
+        }
+
+        rand_angle = random.choice(rot_angles[defect_type])
+        rot_source_defect_mask_to_top_left_rs_adj_translated =  rotate_mask(source_defect_mask_to_top_left_rs_adj_translated, center, rand_angle)
+        rot_source_defect_img_to_top_left_rs_adj_translated =  rotate_mask(source_defect_img_to_top_left_rs_adj_translated, center, rand_angle)
+
+        # Define alphas for each of the defect types
+        alphas = {
+            "lag": 1.00,
+                  }
+
+        # Overlay the defect on the source image
+        alpha = alphas[defect_type]
+        mask_ = (rot_source_defect_mask_to_top_left_rs_adj_translated/255).astype(float)
+        mask__ = 1 - alpha*mask_
+        target_img_ = cv2.multiply(target_img.astype(float), mask__)
+        target_img_ = cv2.add(target_img_, rot_source_defect_img_to_top_left_rs_adj_translated.astype(float))
+        new_path = P_2(output_dir, f"{int(i)}_defect.jpg")
+        cv2.imwrite(new_path, target_img_.astype(np.uint8))
+
+        factors = {
+            "lag": 0.005,
+        }
+
+        # Save final defective binary mask and image for debugging reasons 
+        # cv2.imwrite("binary_mask_defect.jpg", rot_source_defect_mask_to_top_left_rs_adj_translated[:, :, 0])
+        # cv2.imwrite("img_defect.jpg", rot_source_defect_img_to_top_left_rs_adj_translated)
+
+        list_of_lists_points = mask_to_shape(rot_source_defect_mask_to_top_left_rs_adj_translated[:, :, 0], factors[defect_type])
+
+        if defect_type == "lag":
+            label = "lag"
 
         defect_dict = {
       "label": label,
