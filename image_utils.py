@@ -1314,7 +1314,7 @@ def place_lag(source_dir, source_img_name, target_dir, target_img_name, output_d
             json.dump(data, f)
 
 
-        break # We oncly care about the first defect of the json file
+        break # We only care about the first defect of the json file
     return 1
 
 def place_defect():
